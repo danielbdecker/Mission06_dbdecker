@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Mission06_dbdecker.Models;
 using System;
@@ -12,11 +13,11 @@ namespace Mission06_dbdecker.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private MoviesContext blahContext { get; set; }
+        private MoviesContext movieContext { get; set; }
         public HomeController(ILogger<HomeController> logger, MoviesContext someName)
         {
             _logger = logger;
-            blahContext = someName;
+            movieContext = someName;
         }
 
         public IActionResult Index()
@@ -31,15 +32,25 @@ namespace Mission06_dbdecker.Controllers
         [HttpGet]
         public IActionResult Movie()
         {
+            ViewBag.Categories = movieContext.Categories.ToList();
             return View();
         }
 
         [HttpPost]
-        public IActionResult Movie(MovieResponse ar)
+        public IActionResult Movie(MovieResponse mr)
         {
-            blahContext.Add(ar);
-            blahContext.SaveChanges();
-            return View("Confirmation", ar);
+            if (ModelState.IsValid)
+            {
+                movieContext.Add(mr);
+                movieContext.SaveChanges();
+                return View("Confirmation", mr);
+            }
+            else
+            {
+                ViewBag.Categories = movieContext.Categories.ToList();
+                return View(mr);
+            }
+            
         }
 
         public IActionResult Privacy()
@@ -51,6 +62,56 @@ namespace Mission06_dbdecker.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult MovieList ()
+        {
+            var movies = movieContext.responses
+                .Include(x => x.Category)
+                .ToList();
+            return View(movies);
+        }
+
+        [HttpGet]
+        public IActionResult Edit(int movieid)
+        {
+            ViewBag.Categories = movieContext.Categories.ToList();
+            //is this supposed to be R or r in responses??
+            var movie = movieContext.responses.Single(x => x.MovieID == movieid);
+
+            return View("Movie", movie);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(MovieResponse mr)
+        {
+            if (ModelState.IsValid)
+            {
+                movieContext.Update(mr);
+                movieContext.SaveChanges();
+                return RedirectToAction("MovieList");
+            }
+            else
+            {
+                ViewBag.Categories = movieContext.Categories.ToList();
+                return View("Movie", mr);
+            }
+        }
+
+        public IActionResult Delete(int movieid)
+        {
+            var movie = movieContext.responses.Single(x => x.MovieID == movieid);
+
+            return View(movie);
+        }
+
+        [HttpPost]
+        public IActionResult Delete(MovieResponse mr)
+        {
+            movieContext.responses.Remove(mr);
+            movieContext.SaveChanges();
+
+            return RedirectToAction("MovieList");
         }
     }
 }

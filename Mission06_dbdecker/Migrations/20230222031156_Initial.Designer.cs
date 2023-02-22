@@ -8,7 +8,7 @@ using Mission06_dbdecker.Models;
 namespace Mission06_dbdecker.Migrations
 {
     [DbContext(typeof(MoviesContext))]
-    [Migration("20230214003510_Initial")]
+    [Migration("20230222031156_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -17,15 +17,60 @@ namespace Mission06_dbdecker.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.32");
 
+            modelBuilder.Entity("Mission06_dbdecker.Models.Category", b =>
+                {
+                    b.Property<int>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CategoryName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CategoryId");
+
+                    b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            CategoryId = 1,
+                            CategoryName = "Horror"
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            CategoryName = "Action"
+                        },
+                        new
+                        {
+                            CategoryId = 3,
+                            CategoryName = "Science Fiction"
+                        },
+                        new
+                        {
+                            CategoryId = 4,
+                            CategoryName = "Thriller"
+                        },
+                        new
+                        {
+                            CategoryId = 5,
+                            CategoryName = "Chick flick"
+                        },
+                        new
+                        {
+                            CategoryId = 6,
+                            CategoryName = "Kids"
+                        });
+                });
+
             modelBuilder.Entity("Mission06_dbdecker.Models.MovieResponse", b =>
                 {
                     b.Property<int>("MovieID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Director")
                         .IsRequired()
@@ -54,13 +99,15 @@ namespace Mission06_dbdecker.Migrations
 
                     b.HasKey("MovieID");
 
+                    b.HasIndex("CategoryId");
+
                     b.ToTable("responses");
 
                     b.HasData(
                         new
                         {
                             MovieID = 1,
-                            Category = "Horror",
+                            CategoryId = 1,
                             Director = "Charles Martin Smith",
                             Notes = "A masterpiece",
                             Rating = "PG",
@@ -70,7 +117,7 @@ namespace Mission06_dbdecker.Migrations
                         new
                         {
                             MovieID = 2,
-                            Category = "Horror",
+                            CategoryId = 1,
                             Director = "Richard Martin",
                             Notes = "Another masterpiece",
                             Rating = "G",
@@ -80,13 +127,22 @@ namespace Mission06_dbdecker.Migrations
                         new
                         {
                             MovieID = 3,
-                            Category = "Horror",
+                            CategoryId = 1,
                             Director = "Bill Bannerman",
                             Notes = "Yet another masterpiece",
                             Rating = "G",
                             Title = "Air Bud: World Pup",
                             Year = 2000
                         });
+                });
+
+            modelBuilder.Entity("Mission06_dbdecker.Models.MovieResponse", b =>
+                {
+                    b.HasOne("Mission06_dbdecker.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
