@@ -39,18 +39,19 @@ namespace Mission06_dbdecker.Controllers
         [HttpPost]
         public IActionResult Movie(MovieResponse mr)
         {
+            //is everything valid in input
             if (ModelState.IsValid)
             {
                 movieContext.Add(mr);
                 movieContext.SaveChanges();
                 return View("Confirmation", mr);
             }
+            //if not, try again
             else
             {
                 ViewBag.Categories = movieContext.Categories.ToList();
                 return View(mr);
-            }
-            
+            }    
         }
 
         public IActionResult Privacy()
@@ -76,7 +77,7 @@ namespace Mission06_dbdecker.Controllers
         public IActionResult Edit(int movieid)
         {
             ViewBag.Categories = movieContext.Categories.ToList();
-            //is this supposed to be R or r in responses??
+
             var movie = movieContext.responses.Single(x => x.MovieID == movieid);
 
             return View("Movie", movie);
@@ -85,12 +86,14 @@ namespace Mission06_dbdecker.Controllers
         [HttpPost]
         public IActionResult Edit(MovieResponse mr)
         {
+            //checks to see if input is valid
             if (ModelState.IsValid)
             {
                 movieContext.Update(mr);
                 movieContext.SaveChanges();
                 return RedirectToAction("MovieList");
             }
+            //if not valid
             else
             {
                 ViewBag.Categories = movieContext.Categories.ToList();
